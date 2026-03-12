@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Countdown Event</title>
+
+<style>
+body{
+margin:0;
+background:black;
+color:#ff8a00;
+font-family:Courier New, monospace;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+flex-direction:column;
+text-align:center;
+}
+
+h1{
+letter-spacing:10px;
+margin-bottom:20px;
+}
+
+#countdown{
+font-size:8vw;
+text-shadow:0 0 10px #ff8a00,0 0 30px #ff5500;
+}
+
+.subtitle{
+margin-top:20px;
+opacity:0.7;
+}
+
+.live{
+color:red;
+text-shadow:0 0 20px red;
+}
+</style>
+</head>
+
+<body>
+
+<h1>EVENT INCOMING</h1>
+<div id="countdown">00:00:00:00</div>
+<div class="subtitle">28 mars 2026 - 21h30</div>
+
+<script>
+
+const targetDate = new Date("2026-03-28T21:30:00");
+
+let audioCtx;
+
+function tick(){
+if(!audioCtx)return;
+const osc = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+
+osc.type="square";
+osc.frequency.value=1000;
+
+gain.gain.value=0.05;
+
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+
+osc.start();
+osc.stop(audioCtx.currentTime+0.05);
+}
+
+function update(){
+
+const now = new Date().getTime();
+const distance = targetDate - now;
+
+if(distance<=0){
+document.getElementById("countdown").innerHTML="LIVE";
+document.getElementById("countdown").classList.add("live");
+return;
+}
+
+const days = Math.floor(distance/(1000*60*60*24));
+const hours = Math.floor((distance/(1000*60*60))%24);
+const minutes = Math.floor((distance/(1000*60))%60);
+const seconds = Math.floor((distance/1000)%60);
+
+document.getElementById("countdown").innerHTML =
+String(days).padStart(2,"0")+":"
++String(hours).padStart(2,"0")+":"
++String(minutes).padStart(2,"0")+":"
++String(seconds).padStart(2,"0");
+
+tick();
+
+}
+
+setInterval(update,1000);
+update();
+
+document.body.addEventListener("click",()=>{
+if(!audioCtx){
+audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+});
+
+</script>
+
+</body>
+</html>
